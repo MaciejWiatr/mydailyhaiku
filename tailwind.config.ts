@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   content: [
@@ -8,13 +10,20 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      fontFamily: {
+        sans: ["Inter", ...defaultTheme.fontFamily.sans],
+        serif: ["Quattrocento", ...defaultTheme.fontFamily.serif],
+      },
+      maxWidth: {
+        prose: "65ch",
+        breakout: "75ch",
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addVariant }) {
+      addVariant("hocus", ["&:hover", "&:focus"]);
+    }),
+  ],
 };
 export default config;
