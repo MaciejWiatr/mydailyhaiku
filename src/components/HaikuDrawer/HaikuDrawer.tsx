@@ -17,7 +17,7 @@ export const HaikuDrawer: FC = () => {
   if (!user) return null;
 
   return (
-    <Drawer.Root shouldScaleBackground>
+    <Drawer.Root>
       <div className="fixed bottom-6 right-6">
         <Drawer.Trigger className="flex items-center gap-1 bg-neutral-900 text-neutral-50 px-4 py-2 font-semibold font-sans rounded-sm text-lg">
           <HiOutlineSparkles />
@@ -26,8 +26,8 @@ export const HaikuDrawer: FC = () => {
       </div>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-neutral-800 flex flex-col rounded-t-md h-fit mt-24 max-w-breakout mx-auto fixed bottom-0 left-0 right-0 p-12 font-sans">
-          <div className="max-h-screen overflow-y-auto ">
+        <Drawer.Content className="bg-neutral-800 rounded-t-md flex flex-col max-h-[96%] mt-24 max-w-breakout mx-auto fixed bottom-0 left-0 right-0 font-sans">
+          <div data-vaul-no-drag="" className="overflow-auto p-8 md:p-12">
             <h3 className="text-neutral-500">Your new beautiful haiku:</h3>
 
             <form
