@@ -1,16 +1,16 @@
 "use client";
 
-import { User } from "@prisma/client";
+import { AuthUser } from "@kysely/types";
 import { FC, PropsWithChildren, createContext, useContext } from "react";
 
 interface UserContextValue {
-  user: User | null;
+  user: AuthUser | null;
 }
 
 const UserContext = createContext<UserContextValue>({ user: null });
 
 interface UserProviderProps extends PropsWithChildren {
-  user: User | null;
+  user: AuthUser | null;
 }
 
 export const UserProvider: FC<UserProviderProps> = ({ children, user }) => {
