@@ -2,7 +2,7 @@ import { github, lucia } from "@/auth/lucia";
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
 import { generateId } from "lucia";
-import { prisma } from "@db/client";
+import { db } from "@kysely/client";
 
 const ALLOWED_USERNAME = "MaciejWiatr";
 
@@ -32,11 +32,11 @@ export async function GET(request: Request): Promise<Response> {
       });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        githubId: Number(githubUser.id),
-      },
-    });
+    const existingUser = await db
+      .selectFrom("authUser")
+      .where("githubId", "=", Number(githubUser.id))
+      .selectAll()
+      .executeTakeFirst();
 
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
@@ -55,13 +55,16 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const userId = generateId(15);
-    await prisma.user.create({
-      data: {
+
+    await db
+      .insertInto("authUser")
+      .values({
         id: userId,
         githubId: Number(githubUser.id),
         username: githubUser.login,
-      },
-    });
+      })
+      .execute();
+
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(

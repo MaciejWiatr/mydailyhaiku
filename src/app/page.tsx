@@ -4,23 +4,28 @@ import { validateRequest } from "@/auth/lucia";
 import { HaikuDrawer } from "@/components/HaikuDrawer";
 import { displayDate } from "@/utils/date.utils";
 import { tw } from "@/utils/tw";
-import { prisma } from "@db/client";
+import { db } from "@kysely/client";
 import { Metadata } from "next";
 import Link from "next/link";
 import { FaGithub } from "react-icons/fa";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const haikusAmount = await prisma.haiku.count();
+  const haikusAmount = await db
+    .selectFrom("haiku")
+    .select(({ fn }) => fn.count<number>("haiku.id").as("haikuCount"))
+    .executeTakeFirst();
 
   return {
-    title: `Nifty collection of ${haikusAmount} haikus written by Maciej Wiatr`,
+    title: `Nifty collection of ${haikusAmount?.haikuCount} haikus written by Maciej Wiatr`,
   };
 }
 
 export default async function Home() {
-  const allHaikus = await prisma.haiku.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const allHaikus = await db
+    .selectFrom("haiku")
+    .orderBy("createdAt desc")
+    .selectAll()
+    .execute();
 
   const { user } = await validateRequest();
 

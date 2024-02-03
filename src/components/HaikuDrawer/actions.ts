@@ -1,12 +1,13 @@
 "use server";
 
-import { prisma } from "@db/client";
-import { Haiku } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { uploadPhoto } from "@/utils/storage.utils";
+import { db } from "@kysely/client";
+import { Haiku } from "@kysely/types";
+import { Insertable } from "kysely";
 
 type AddHaikuResponse =
-  | { status: "success"; haiku: Haiku }
+  | { status: "success"; haiku: Insertable<Haiku> }
   | { status: "error"; message: string };
 
 export async function addHaiku(
@@ -20,9 +21,17 @@ export async function addHaiku(
   const photo = formData.get("photo") as File;
   const { photoUrl } = await uploadPhoto(photo);
 
-  const inserted = await prisma.haiku.create({
-    data: { firstLine, secondLine, thirdLine, location, photoUrl },
-  });
+  const inserted = await db
+    .insertInto("haiku")
+    .values({
+      firstLine,
+      secondLine,
+      thirdLine,
+      location,
+      photoUrl,
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
 
   revalidatePath("/");
 

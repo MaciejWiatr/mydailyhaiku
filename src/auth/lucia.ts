@@ -1,13 +1,17 @@
-import { prisma } from "@db/client";
-import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-import { User as DatabaseUser } from "@prisma/client";
 import { Lucia } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import type { Session, User } from "lucia";
 import { GitHub } from "arctic";
+import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
+import { pgPool } from "@kysely/client";
+import { Selectable } from "kysely";
+import { AuthUser as DatabaseUser } from "@kysely/types";
 
-const adapter = new PrismaAdapter(prisma.session, prisma.user);
+const adapter = new NodePostgresAdapter(pgPool, {
+  user: "auth_user",
+  session: "user_session",
+});
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -31,7 +35,7 @@ export const lucia = new Lucia(adapter, {
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
-    DatabaseUserAttributes: Omit<DatabaseUser, "id">;
+    DatabaseUserAttributes: Omit<Selectable<DatabaseUser>, "id">;
   }
 }
 
